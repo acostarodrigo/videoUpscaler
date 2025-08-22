@@ -1,0 +1,76 @@
+syntax = "proto3";
+package janction.videoUpscaler.v1;
+
+option go_package = "github.com/janction/videoUpscaler";
+
+import "janction/videoUpscaler/v1/types.proto";
+import "google/api/annotations.proto";
+import "cosmos/query/v1/query.proto";
+import "gogoproto/gogo.proto";
+
+// Query defines the module Query service.
+service Query {
+  // GetVideoUpscalerTask returns the task based on the taskId
+  rpc GetVideoUpscalerTask(QueryGetVideoUpscalerTaskRequest) returns (QueryGetVideoUpscalerTaskResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
+    option (google.api.http).get =
+      "/janction/videoUpscaler/v1/{index}";
+  }
+  
+  rpc GetVideoUpscalerLogs(QueryGetVideoUpscalerLogsRequest) returns (QueryGetVideoUpscalerLogsResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
+    option (google.api.http).get =
+      "/janction/videoUpscaler/v1/{threadId}";
+  }
+
+  rpc GetWorker(QueryGetWorkerRequest) returns (QueryGetWorkerResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
+    option (google.api.http).get =
+      "/janction/videoUpscaler/v1/{worker}";
+  }
+  rpc GetPendingVideoUpscalerTasks(QueryGetPendingVideoUpscalerTaskRequest) returns (QueryGetPendingVideoUpscalerTaskResponse){
+  }
+
+}
+
+// QueryGetGameRequest is the request type for the Query/GetGame RPC
+// method.
+message QueryGetVideoUpscalerTaskRequest {
+  string index = 1;
+}
+
+// QueryGetGameResponse is the response type for the Query/GetGame RPC
+// method.
+message QueryGetVideoUpscalerTaskResponse {
+  // Game defines the game at the requested index.
+  VideoUpscalerTask video_upscaler_task = 1;
+}
+
+// QueryGetGameRequest is the request type for the Query/GetGame RPC
+// method.
+message QueryGetVideoUpscalerLogsRequest {
+  string threadId = 1;
+}
+
+// QueryGetGameResponse is the response type for the Query/GetGame RPC
+// method.
+message QueryGetVideoUpscalerLogsResponse {
+  // Game defines the game at the requested index.
+  VideoUpscalerLogs video_upscaler_logs = 1;
+}
+
+message QueryGetPendingVideoUpscalerTaskRequest {
+  
+}
+
+message QueryGetPendingVideoUpscalerTaskResponse {
+  repeated VideoUpscalerTask video_upscaler_tasks = 1;
+}
+
+message QueryGetWorkerRequest {
+  string worker = 1;
+}
+
+message QueryGetWorkerResponse {
+  Worker worker = 1;
+}
