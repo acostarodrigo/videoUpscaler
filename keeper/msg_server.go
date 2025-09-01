@@ -30,7 +30,7 @@ func NewMsgServerImpl(keeper Keeper) videoUpscaler.MsgServer {
 
 // CreateGame defines the handler for the MsgCreateVideoUpscalerTask message.
 func (ms msgServer) CreateVideoUpscalerTask(ctx context.Context, msg *videoUpscaler.MsgCreateVideoUpscalerTask) (*videoUpscaler.MsgCreateVideoUpscalerTaskResponse, error) {
-	videoUpscalerLogger.Logger.Info("CreateVideoUpscalerTask -  creator: %s, cid: %s, startFrame: %v, endFrame: %v, threads: %v, reward: %s", msg.Creator, msg.Cid, msg.StartFrame, msg.EndFrame, msg.Threads, msg.Reward)
+	videoUpscalerLogger.Logger.Info("CreateVideoUpscalerTask -  creator: %s, cid: %s, startFrame: %v, endFrame: %v, threads: %v, scale: %v, reward: %s", msg.Creator, msg.Cid, msg.StartFrame, msg.EndFrame, msg.Threads,msg.Scale, msg.Reward)
 
 	// TODO had validations about the parameters
 	taskInfo, err := ms.k.VideoUpscalerTaskInfo.Get(ctx)
@@ -56,7 +56,7 @@ func (ms msgServer) CreateVideoUpscalerTask(ctx context.Context, msg *videoUpsca
 	nextId++
 	ms.k.VideoUpscalerTaskInfo.Set(ctx, videoUpscaler.VideoUpscalerTaskInfo{NextId: nextId})
 
-	videoTask := videoUpscaler.VideoUpscalerTask{TaskId: taskId, Requester: msg.Creator, Cid: msg.Cid, StartFrame: msg.StartFrame, EndFrame: msg.EndFrame, Completed: false, ThreadAmount: msg.Threads, Reward: msg.Reward}
+	videoTask := videoUpscaler.VideoUpscalerTask{TaskId: taskId, Requester: msg.Creator, Cid: msg.Cid, StartFrame: msg.StartFrame, EndFrame: msg.EndFrame, Scale: msg.Scale, Completed: false, ThreadAmount: msg.Threads, Reward: msg.Reward}
 	threads := videoTask.GenerateThreads(taskId)
 	videoTask.Threads = threads
 

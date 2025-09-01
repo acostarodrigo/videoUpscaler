@@ -32,7 +32,7 @@ func (t *VideoUpscalerThread) StartWork(ctx context.Context, worker string, cid 
 		// task is not running,
 
 		// we remove the container just in case it already exists.
-		vm.RemoveContainer(ctx, "myBlender"+t.ThreadId)
+		vm.RemoveContainer(ctx, "upscaler-cpu"+t.ThreadId)
 
 		videoUpscalerLogger.Logger.Info("No solution for thread %s. Starting work", t.ThreadId)
 		// we don't have a solution, start working
@@ -95,7 +95,7 @@ func (t *VideoUpscalerThread) StartWork(ctx context.Context, worker string, cid 
 func (t VideoUpscalerThread) ProposeSolution(codec codec.Codec, alias, workerAddress string, rootPath string, db *db.DB) error {
 	db.UpdateThread(t.ThreadId, true, true, true, true, true, false, false, false)
 
-	output := path.Join(rootPath, "renders", t.ThreadId, "output")
+	output := path.Join(rootPath, "upscales", t.ThreadId, "output")
 	count := vm.CountFilesInDirectory(output)
 
 	if count != (int(t.EndFrame)-int(t.StartFrame))+1 {
@@ -168,7 +168,7 @@ func (t VideoUpscalerThread) ProposeSolution(codec codec.Codec, alias, workerAdd
 func (t VideoUpscalerThread) SubmitVerification(codec codec.Codec, alias, workerAddress string, rootPath string, db *db.DB) error {
 	// we will verify any file we already have rendered.
 	db.UpdateThread(t.ThreadId, true, true, true, true, true, true, false, false)
-	output := path.Join(rootPath, "renders", t.ThreadId, "output")
+	output := path.Join(rootPath, "upscales", t.ThreadId, "output")
 	files := vm.CountFilesInDirectory(output)
 	if files == 0 {
 		videoUpscalerLogger.Logger.Error("found %v files in path %s", files, output)
@@ -336,7 +336,7 @@ func calculateValidatorPayment(filesValidated, totalFilesValidated int, totalVal
 
 // Once validations are ready, we show blockchain the solution
 func (t *VideoUpscalerThread) RevealSolution(rootPath string, db *db.DB) error {
-	output := path.Join(rootPath, "renders", t.ThreadId, "output")
+	output := path.Join(rootPath, "upscales", t.ThreadId, "output")
 	cids, err := ipfs.CalculateCIDs(output)
 	if err != nil {
 		videoUpscalerLogger.Logger.Error(err.Error())

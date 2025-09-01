@@ -179,7 +179,7 @@ func (am AppModule) BeginBlock(ctx context.Context) error {
 			dbThread, _ := k.DB.ReadThread(thread.ThreadId)
 			videoUpscalerLogger.Logger.Info("local thread %s is: downloadStarted: %s, downloadCompleted: %s, workStarted: %s, workCompleted: %s, solutionProposed: %s, verificationStarted: %s, solutionRevealed: %s, submitionStarted: %s", dbThread.ID, strconv.FormatBool(dbThread.DownloadStarted), strconv.FormatBool(dbThread.DownloadCompleted), strconv.FormatBool(dbThread.WorkStarted), strconv.FormatBool(dbThread.WorkCompleted), strconv.FormatBool(dbThread.SolutionProposed), strconv.FormatBool(dbThread.VerificationStarted), strconv.FormatBool(dbThread.SolutionRevealed), strconv.FormatBool(dbThread.SubmitionStarted))
 
-			workPath := filepath.Join(k.Configuration.RootPath, "renders", thread.ThreadId)
+			workPath := filepath.Join(k.Configuration.RootPath, "upscales", thread.ThreadId)
 
 			if !thread.Completed && !dbThread.DownloadStarted {
 				videoUpscalerLogger.Logger.Info("thread %v of task %v started", thread.ThreadId, task.TaskId)
@@ -189,10 +189,10 @@ func (am AppModule) BeginBlock(ctx context.Context) error {
 					// if we are already working but the container is exited, it means there was an error, so we trigger it again
 					isExited, err := vm.IsContainerExited(thread.ThreadId)
 					if err != nil {
-						videoUpscalerLogger.Logger.Error("unable to determine if container myBlender%s is running: %s", thread.ThreadId, err.Error())
+						videoUpscalerLogger.Logger.Error("unable to determine if container upscaler-cpu%s is running: %s", thread.ThreadId, err.Error())
 					}
 					if isExited {
-						videoUpscalerLogger.Logger.Info("container myBlender%s is existed. We restarted", thread.ThreadId)
+						videoUpscalerLogger.Logger.Info("container upscaler-cpu%s is existed. We restarted", thread.ThreadId)
 						go thread.StartWork(ctx, worker.Address, task.Cid, workPath, &k.DB)
 					}
 

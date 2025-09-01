@@ -47,7 +47,8 @@ message MsgCreateVideoUpscalerTask {
   int32 startFrame = 3 ;
   int32 endFrame = 4 ;
   int32 threads = 5;
-  cosmos.base.v1beta1.Coin reward = 6;
+  int32 scale = 6;
+  cosmos.base.v1beta1.Coin reward = 7;
 }
 
 // MsgCreateGameResponse defines the Msg/CreateGame response type.

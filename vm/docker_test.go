@@ -50,7 +50,7 @@ func TestIsContainerRunningOk(t *testing.T) {
 	defer patch1.Unpatch()
 
 	patch2 := monkey.PatchInstanceMethod(reflect.TypeOf(&exec.Cmd{}), "Output", func(cmd *exec.Cmd) ([]byte, error) {
-		return []byte("myBlender1234"), nil
+		return []byte("upscaler-cpu"), nil
 	})
 	defer patch2.Unpatch()
 
@@ -170,7 +170,7 @@ func TestRenderVideoFrame_ContainerAlreadyExist(t *testing.T) {
 	defer patch1.Unpatch()
 
 	patch2 := monkey.PatchInstanceMethod(reflect.TypeOf(&exec.Cmd{}), "Output", func(cmd *exec.Cmd) ([]byte, error) {
-		return []byte("myBlender1234"), nil
+		return []byte("upscaler-cpu"), nil
 	})
 	defer patch2.Unpatch()
 
@@ -549,7 +549,7 @@ func TestIsContainerExitedKo(t *testing.T) {
 func TestIsContainerExitedOk(t *testing.T) {
 	// 1. Setup
 	threadId := "thread123"
-	containerName := "myBlender" + threadId
+	containerName := "upscaler-cpu" + threadId
 
 	// 2. Monkey patch CommandContext to return an *exec.Cmd with visible arguments
 	patch1 := monkey.Patch(exec.Command, func(name string, arg ...string) *exec.Cmd {

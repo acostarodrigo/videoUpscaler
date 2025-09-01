@@ -18,7 +18,7 @@ import (
 )
 
 func IsContainerRunning(ctx context.Context, threadId string) bool {
-	name := fmt.Sprintf("myBlender%s", threadId)
+	name := fmt.Sprintf("upscaler-cpu%s", threadId)
 
 	// Command to check for running containers
 	cmd := exec.CommandContext(ctx, "docker", "ps", "--filter", fmt.Sprintf("name=%s", name), "--format", "{{.Names}}")
@@ -37,7 +37,7 @@ func IsContainerRunning(ctx context.Context, threadId string) bool {
 func RenderVideo(ctx context.Context, cid string, start int64, end int64, id string, path string, reverse bool, db *db.DB) {
 	if reverse {
 		for i := end; i >= start; i-- {
-			videoUpscalerLogger.Logger.Info("Upscal`er` frame %v in reverse", i)
+			videoUpscalerLogger.Logger.Info("Upscaler` frame %v in reverse", i)
 			renderVideoFrame(ctx, cid, i, id, path, db)
 		}
 	} else {
@@ -49,7 +49,7 @@ func RenderVideo(ctx context.Context, cid string, start int64, end int64, id str
 }
 
 func renderVideoFrame(ctx context.Context, cid string, frameNumber int64, id string, path string, db *db.DB) error {
-	n := "myBlender" + id
+	n := "upscaler-cpu" + id
 
 	started := time.Now().Unix()
 	db.AddLogEntry(id, fmt.Sprintf("Started upscaler frame %v...", frameNumber), started, 0)
@@ -71,27 +71,26 @@ func renderVideoFrame(ctx context.Context, cid string, frameNumber int64, id str
 	}
 
 	// Construct the bind path and command
-	bindPath := fmt.Sprintf("%s:/workspace", path)
+	bindPath := fmt.Sprintf("%s:/work", path)
 
 	var blenderArgs []string
-	if isARM64() {
-		blenderArgs = append(blenderArgs, "blender")
-	}
-	blenderArgs = append(blenderArgs, "--background")
-	blenderArgs = append(blenderArgs, fmt.Sprintf("/workspace/%s", cid))
-	blenderArgs = append(blenderArgs, "--engine")
-	blenderArgs = append(blenderArgs, "CYCLES")
 
-	blenderArgs = append(blenderArgs, "--render-output")
-	blenderArgs = append(blenderArgs, "/workspace/output/frame_######")
-	blenderArgs = append(blenderArgs, "--render-format")
-	blenderArgs = append(blenderArgs, "PNG")
-	blenderArgs = append(blenderArgs, "--render-frame")
+	blenderArgs = append(blenderArgs, "-i")
+	blenderArgs = append(blenderArgs, fmt.Sprintf("/work/%s", cid))
+	blenderArgs = append(blenderArgs, "-o")
+	blenderArgs = append(blenderArgs, "/work/output")
+	blenderArgs = append(blenderArgs, "--frame")
 	blenderArgs = append(blenderArgs, strconv.FormatInt(frameNumber, 10))
+	blenderArgs = append(blenderArgs, "-s")
+	blenderArgs = append(blenderArgs, "2")
+	blenderArgs = append(blenderArgs, "-n")
+	blenderArgs = append(blenderArgs, "-1")
+	blenderArgs = append(blenderArgs, "--fast")
 
 	var dockerArgs []string
 	dockerArgs = append(dockerArgs, "run")
 
+	dockerArgs = append(dockerArgs, "--rm")
 	dockerArgs = append(dockerArgs, "--name")
 	dockerArgs = append(dockerArgs, n)
 	dockerArgs = append(dockerArgs, "-v")
@@ -99,12 +98,8 @@ func renderVideoFrame(ctx context.Context, cid string, frameNumber int64, id str
 	dockerArgs = append(dockerArgs, "-d")
 
 	// TODO if on Mac, we use another image that is non deterministic
-	if isARM64() {
-		dockerArgs = append(dockerArgs, "blender_render")
-	} else {
-		// if non Mac, this image generates deterministics results
-		dockerArgs = append(dockerArgs, "blendergrid/blender")
-	}
+	dockerArgs = append(dockerArgs, "rodrigoa77/upscaler-cpu")
+
 	dockerArgs = append(dockerArgs, blenderArgs...)
 
 	// Create and start the container
@@ -197,7 +192,7 @@ func isARM64() bool {
 }
 
 func IsContainerExited(threadId string) (bool, error) {
-	containerName := "myBlender" + threadId
+	containerName := "upscaler-cpu" + threadId
 	cmd := exec.Command(
 		"docker", "ps", "-a",
 		"--filter", "name="+containerName,

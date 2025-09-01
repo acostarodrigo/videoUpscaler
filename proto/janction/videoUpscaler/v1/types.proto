@@ -64,9 +64,10 @@ message VideoUpscalerTask {
   int32 start_frame = 4;
   int32 end_frame = 5;
   int32 threadAmount = 6;
-  bool completed = 7;
-  cosmos.base.v1beta1.Coin reward = 8;
-  repeated VideoUpscalerThread  threads = 9;
+  int32 scale = 7;
+  bool completed = 8;
+  cosmos.base.v1beta1.Coin reward = 9;
+  repeated VideoUpscalerThread  threads = 10;
 }
 
   /*
@@ -79,11 +80,12 @@ message VideoUpscalerTask {
     string task_id = 2;
     int64 start_frame = 3;
     int64 end_frame = 4;
-    bool completed = 5;
-    repeated string workers = 6;
-    Solution solution = 7;
-    repeated Validation validations = 8;
-    int64 average_render_seconds = 9;
+    int64 scale = 5;
+    bool completed = 6;
+    repeated string workers = 7;
+    Solution solution = 8;
+    repeated Validation validations = 9;
+    int64 average_render_seconds = 10;
     
 
     message Solution {
